@@ -1,10 +1,20 @@
 require './robots'
 
 describe "Robot and Lasers Puzzle" do
-  it 'create directions for robots' do
-    scenario = ["#|#|#|##", "---X----", "###||###"]
-    r = Robots.new
-    r.directions(scenario).should == "GO WEST"
+  context "given best path is west" do
+    it 'tell robot go west' do
+      scenario = ["#|#|#|##", "---X----", "###||###"]
+      r = Robots.new
+      r.directions(scenario).should == "GO WEST"
+    end
+  end
+
+  context "given best path is east" do
+    it 'tell robot go east' do
+      scenario = ["##|#|#|#", "----X---", "###||###"]
+      r = Robots.new
+      r.directions(scenario).should == "GO EAST"
+    end
   end
 end
 
