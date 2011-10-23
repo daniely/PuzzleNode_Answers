@@ -36,6 +36,27 @@ describe "Robot and Lasers Puzzle" do
       directions.join.should == out_text
     end
   end
+
+  context "given a large sample file with many scenarios" do
+    it 'create solution output file' do
+      input = File.readlines('input.txt')
+      input.map!{ |i| i.sub("\n",'') }.reject!{ |i| i.empty? }
+
+      r = Robots.new
+      directions = []
+
+      input.each_slice(3) do |scenario|
+        directions << "#{r.directions(scenario)}\n"
+      end
+
+      # uncomment to create another output solution file
+      #File.open('output.txt', 'w') do |o|
+        #o.write directions.join
+      #end
+
+      pending "don't have anything to test. just using this to create output solution file"
+    end
+  end
 end
 
 describe Robots do
