@@ -20,10 +20,10 @@ describe "Robot and Lasers Puzzle" do
   context "given a short sample file with 3 scenarios" do
     it 'gives multiple directions' do
       out_text = ''
-      File.open('sample-output.txt', 'r') do |outfile|
+      File.open('./samples/sample-output.txt', 'r') do |outfile|
         out_text = outfile.read
       end
-      input = File.readlines('sample-input.txt')
+      input = File.readlines('./samples/sample-input.txt')
       input.map!{ |i| i.sub("\n",'') }.reject!{ |i| i.empty? }
 
       r = Robots.new
@@ -39,7 +39,7 @@ describe "Robot and Lasers Puzzle" do
 
   context "given a large sample file with many scenarios" do
     it 'create solution output file' do
-      input = File.readlines('input.txt')
+      input = File.readlines('./samples/input.txt')
       input.map!{ |i| i.sub("\n",'') }.reject!{ |i| i.empty? }
 
       r = Robots.new
@@ -50,7 +50,7 @@ describe "Robot and Lasers Puzzle" do
       end
 
       # uncomment to create another output solution file
-      #File.open('output.txt', 'w') do |o|
+      #File.open('./samples/output.txt', 'w') do |o|
         #o.write directions.join
       #end
 
