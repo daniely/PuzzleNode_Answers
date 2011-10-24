@@ -88,9 +88,15 @@ EOS
 
   describe ".execute(REPEAT 2 [ RT 90 FD 2 ]" do
     it 'can repeat instructions' do
-      t3.execute("REPEAT 2 [ RT 90 FD 2 ]")
-      puts t3.draw
-      pending
+      output =<<-EOS
+. . . . .
+. . . . .
+. . X X X
+. . . . X
+. . . . X
+EOS
+      t5.execute("REPEAT 2 [ RT 90 FD 2 ]")
+      t5.draw.should == output
     end
   end
 
@@ -119,10 +125,10 @@ describe "run turtle with file of instructions" do
       t = Turtle.new(size)
 
       while instructions = f.gets do
-        #self.canvas << instructions.chop
+        t.execute(instructions.chop)
       end
 
-      #puts t.draw
+      puts t.draw
     end
   end
 end

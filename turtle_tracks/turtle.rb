@@ -28,8 +28,13 @@ class Turtle
     value = value.to_i
 
     if c == 'REPEAT'
+      m = command.match(/\[(.+)\]/)
+      command_pairs = m[1].split
+
       value.times do
-        debugger
+        command_pairs.each_slice(2) do |c|
+          execute(c.join(' '))
+        end
       end
     elsif c == 'FD'
       value.times do
