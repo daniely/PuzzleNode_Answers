@@ -49,6 +49,11 @@ EOS
       t3.execute("BK 1")
       t3.draw.should == output
     end
+
+    it 'keeps correct direction' do
+      t3.execute("BK 1")
+      t3.direction.should == 0
+    end
   end
 
   describe ".execute(FD 2)" do
@@ -108,12 +113,12 @@ EOS
   end
 
   describe ".direction=" do
-    it 'can not go above 360' do
+    it 'loops when going past 360' do
       t3.direction = 270 + 90
       t3.direction.should == 0
     end
 
-    it 'can not go below 0' do
+    it 'loops when going below 0' do
       t3.direction = -90
       t3.direction.should == 270
     end
@@ -122,9 +127,9 @@ end
 
 #describe "run turtle with file of instructions" do
   #it 'creates drawing' do
-    #file = './samples/complex.logo'
+    #file = 'complex'
 
-    #File.open(file, 'r') do |f|
+    #File.open("./samples/#{file}.logo", 'r') do |f|
       ## first 2 lines are for the size
       #size = f.gets.chop.to_i
       #f.gets
@@ -136,7 +141,7 @@ end
       #end
 
       ##puts t.draw
-      #File.open('./samples/complex_output.txt', 'w') do |o|
+      #File.open("./samples/#{file}_output.txt", 'w') do |o|
         #o.write t.draw
       #end
     #end
