@@ -17,9 +17,7 @@ class Turtle
   end
 
   def draw
-    # output canvas
-    self.canvas.each do |a|
-      p a.join(' ')
-    end
+    output = self.canvas.map{ |a| a.join(' ') }.join("\n") << "\n"
+    output
   end
 end
