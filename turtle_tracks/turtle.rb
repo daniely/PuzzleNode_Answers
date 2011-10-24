@@ -36,7 +36,9 @@ class Turtle
           execute(c.join(' '))
         end
       end
-    elsif c == 'FD'
+    elsif c == 'FD' || c == 'BK'
+      self.direction += 180 if c == 'BK'
+
       value.times do
         if self.direction == 0
           self.y -= 1
@@ -74,6 +76,10 @@ class Turtle
   end
 
   def mark
+    unless (0..self.size-1).include?(self.x) && (0..self.size-1).include?(self.y)
+      raise "Out of bounds: attempting to reach x=#{self.x} y=#{self.y} but allowable range=[0..#{self.size-1}]" 
+    end
+
     self.canvas[self.y][self.x] = MARK
   end
 

@@ -27,11 +27,6 @@ EOS
     end
   end
 
-  # sample command
-  # "RT 135\n"
-  # "LT 135\n"
-  # "FD 5\n"
-
   describe ".execute(FD 1)" do
     it 'draw while moving north one click' do
       output =<<-EOS
@@ -40,6 +35,18 @@ EOS
 . . .
 EOS
       t3.execute("FD 1")
+      t3.draw.should == output
+    end
+  end
+
+  describe ".execute(BK 1)" do
+    it 'draw while moving south one click' do
+      output =<<-EOS
+. . .
+. X .
+. X .
+EOS
+      t3.execute("BK 1")
       t3.draw.should == output
     end
   end
@@ -113,22 +120,25 @@ EOS
   end
 end
 
-describe "run turtle with file of instructions" do
-  it 'creates drawing' do
-    file = './samples/simple.logo'
+#describe "run turtle with file of instructions" do
+  #it 'creates drawing' do
+    #file = './samples/complex.logo'
 
-    File.open(file, 'r') do |f|
-      # first 2 lines are for the size
-      size = f.gets.chop.to_i
-      f.gets
+    #File.open(file, 'r') do |f|
+      ## first 2 lines are for the size
+      #size = f.gets.chop.to_i
+      #f.gets
 
-      t = Turtle.new(size)
+      #t = Turtle.new(size)
 
-      while instructions = f.gets do
-        t.execute(instructions)
-      end
+      #while instructions = f.gets do
+        #t.execute(instructions)
+      #end
 
-      puts t.draw
-    end
-  end
-end
+      ##puts t.draw
+      #File.open('./samples/complex_output.txt', 'w') do |o|
+        #o.write t.draw
+      #end
+    #end
+  #end
+#end
