@@ -70,8 +70,14 @@ class Turtle
           mark
         end
       end
+
+      self.direction -= 180 if c == 'BK'
     elsif c == 'RT'
       self.direction += value
+    elsif c == 'LT'
+      self.direction -= value
+    else
+      raise "Command not found: #{c} #{value}"
     end
   end
 
