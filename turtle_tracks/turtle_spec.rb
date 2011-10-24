@@ -125,7 +125,7 @@ describe "run turtle with file of instructions" do
       t = Turtle.new(size)
 
       while instructions = f.gets do
-        t.execute(instructions.chop)
+        t.execute(instructions)
       end
 
       puts t.draw
