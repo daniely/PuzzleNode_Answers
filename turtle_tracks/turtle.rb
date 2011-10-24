@@ -27,13 +27,39 @@ class Turtle
     c, value = command.split
     value = value.to_i
 
-    if c == 'FD'
-      value.to_i.times do
+    if c == 'REPEAT'
+      value.times do
+        debugger
+      end
+    elsif c == 'FD'
+      value.times do
         if self.direction == 0
           self.y -= 1
           mark
+        elsif self.direction == 45
+          self.x += 1
+          self.y -= 1
+          mark
+        elsif self.direction == 90
+          self.x += 1
+          mark
+        elsif self.direction == 135
+          self.x += 1
+          self.y += 1
+          mark
         elsif self.direction == 180
           self.y += 1
+          mark
+        elsif self.direction == 225
+          self.x -= 1
+          self.y += 1
+          mark
+        elsif self.direction == 270
+          self.x -= 1
+          mark
+        elsif self.direction == 315
+          self.x -= 1
+          self.y -= 1
           mark
         end
       end

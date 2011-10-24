@@ -86,6 +86,14 @@ EOS
     end
   end
 
+  describe ".execute(REPEAT 2 [ RT 90 FD 2 ]" do
+    it 'can repeat instructions' do
+      t3.execute("REPEAT 2 [ RT 90 FD 2 ]")
+      puts t3.draw
+      pending
+    end
+  end
+
   describe ".direction=" do
     it 'can not go above 360' do
       t3.direction = 270 + 90
