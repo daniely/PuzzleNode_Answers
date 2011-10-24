@@ -25,6 +25,7 @@ class Turtle
 
   def execute(command)
     c, value = command.split
+    value = value.to_i
 
     if c == 'FD'
       value.to_i.times do
@@ -37,7 +38,7 @@ class Turtle
         end
       end
     elsif c == 'RT'
-      self.direction += value.to_i
+      self.direction += value
     end
   end
 
