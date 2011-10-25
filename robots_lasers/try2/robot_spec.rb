@@ -1,7 +1,11 @@
 describe "command line attempt" do
-  #it 'runs from the command line' do
-    #system('cat ./samples/sample-input.txt | ruby robot.rb')
-  #end
+  it 'runs from the command line' do
+    #system('cat ./samples/sample-input.txt | ruby robot.rb > ./samples/sample-output.txt')
+  end
+
+  it 'outputs to console' do
+    system('cat ./samples/sample-input.txt | ruby robot.rb')
+  end
 end
 
 describe "find lasers that will fire on north side" do
