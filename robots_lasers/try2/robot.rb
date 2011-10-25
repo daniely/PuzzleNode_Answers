@@ -1,8 +1,8 @@
 require 'ruby-debug'
 
-scenarios = STDIN.read.split("\n\n")
-scenarios.each do |scenario|
-  p scenario.split("\n")
+STDIN.read.split("\n\n").each do |scenario|
+  n, p, s= scenario.split("\n")
+
   north = n.split('')
   south = s.split('')
   position = p.index('X')
