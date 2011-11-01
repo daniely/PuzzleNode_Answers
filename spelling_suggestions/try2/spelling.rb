@@ -19,16 +19,11 @@ class Spelling
     check = c.split('')
     against = a.split('')
 
-    start_search_from = 0
     result = []
 
     check.each do |ch|
-      leftover = against[start_search_from..-1]
-      break if start_search_from == against.length
-      start_search_from += 1
-
-      leftover.each do |lo|
-        if lo == ch
+      while(match_letter = against.shift) do
+        if match_letter == ch
           result << ch
           break
         end
