@@ -10,22 +10,22 @@ describe "simple case" do
     #s.closest_match(check, option1, option2).should == option2
   #end
 
-  it 'finds longest substring' do
-    check   = "remimance"
-    option1 = "remembrance"
-    option2 = "reminiscence"
-
-    s = Spelling.new
-    s.closest_match(check, option1, option2).should == option1
-  end
-
   #it 'finds longest substring' do
-    #check   = "nenhundertennunndneunzig"
-    #option1 = "neunhunderteinundneunzig"
-    #option2 = "einhundertneunundneunzig"
+    #check   = "remimance"
+    #option1 = "remembrance"
+    #option2 = "reminiscence"
+
     #s = Spelling.new
     #s.closest_match(check, option1, option2).should == option1
   #end
+
+  it 'finds longest substring' do
+    check   = "nenhundertennunndneunzig"
+    option1 = "neunhunderteinundneunzig"
+    option2 = "einhundertneunundneunzig"
+    s = Spelling.new
+    s.closest_match(check, option1, option2).should == option1
+  end
 end
 
 #describe "from files" do

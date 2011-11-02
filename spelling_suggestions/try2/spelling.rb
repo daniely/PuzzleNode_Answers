@@ -13,6 +13,32 @@ class Spelling
     end
   end
 
+  # find leftmost matching pair
+  def leftmost(c, a)
+    matches = []
+
+    # x = "a b c d f"
+    # y = "b b a d c"
+    # matches are
+    # [0,2]a, [1,1]b, [2,4]c ...
+    c.each_with_index do |x, xi|
+      a.each_with_index do |y, yi|
+        if x == y
+          matches << [xi, yi]
+        end
+      end
+    end
+
+    l_pair = matches.sort{ |x,y| x.max <=> y.max }.first
+
+    x = c[l_pair.first..-1]
+    y = a[l_pair.last..-1]
+    x.shift
+    y.shift
+
+    [c[l_pair.first], x, y]
+  end
+
   private
 
   def longest(c, a)
@@ -21,15 +47,19 @@ class Spelling
 
     result = []
 
-    check.each do |ch|
-      while(match_letter = against.shift) do
-        if match_letter == ch
-          result << ch
-          break
-        end
+    while true do
+      check_first = check.shift
+      against_first = against.shift
+
+      if (check.empty? || against.empty?)
+        return result.join
+      elsif check_first == against_first
+        result << check_first
+      else
+        # find leftmost match
+        r, check, against = leftmost(check, against)
+        result << r
       end
     end
-
-    result.join
   end
 end
