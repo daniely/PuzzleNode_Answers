@@ -3,7 +3,7 @@ require 'ruby-debug'
 module SixDegrees
   extend self
 
-  def connect(params)
+  def levels(params)
     if params.has_key?(:text) == false && params.has_key?(:filename) == false
       raise "specify a filename or some text"
     end
@@ -11,11 +11,38 @@ module SixDegrees
     filename = params[:filename]
     text = params[:text]
 
-    connections = {}
-
     if filename
       text = File.read(filename)
     end
+
+    c = connect(text)
+    c = remove_noise(c)
+
+    result = ''
+
+    c.each do |k, v|
+      levels = bfs(c, k)
+      
+      (0..levels.values.max).each do |i|
+        names = []
+        levels.select{|k, v| v == i}.each { |n| names << n.first }
+        result +=  names.join(', ') + "\n"
+      end
+      result += "\n"
+    end
+
+    # save to file
+    if params.has_key?(:filename)
+      File.open("dan_#{params[:filename]}",'w') do |file|
+        file.write result
+      end
+    end
+
+    result.chomp!
+  end
+
+  def connect(text)
+    connections = {}
 
     text.each_line do |line|
       author = line[0..line.index(': ')-1]
