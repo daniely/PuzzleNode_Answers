@@ -17,6 +17,7 @@ module SixDegrees
 
     c = connect(text)
     c = remove_noise(c)
+    c = Hash[c.sort]
 
     result = ''
 
