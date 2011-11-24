@@ -1,17 +1,47 @@
 module Stacker
   class Interpreter
-    attr_accessor :stack, :if_level, :in_times, :buffer
+    attr_accessor :stack, :if_level, :capture_times, :buffer, :capture_if
 
     def initialize
       self.stack = [] 
       self.if_level = 0
-      self.in_times = false
+      self.capture_times = false
       self.buffer = []
+      self.capture_if = false
     end
 
     def execute(c)
-      if self.in_times && c != '/TIMES'
-        push_to(c, self.buffer)
+      if self.capture_if
+        if c == 'THEN'
+          self.if_level -= 1
+
+          self.buffer << c 
+          return unless self.if_level == 0
+
+          condition = self.buffer.shift
+
+          if condition.match(/true/)
+            conditional_cmd = parse_if(self.buffer)
+          else
+            conditional_cmd = parse_else(self.buffer)
+          end
+
+          self.capture_if = false
+          self.buffer = []
+          conditional_cmd.each { |cmd| execute(cmd) }
+        else
+          self.if_level += 1 if c == 'IF'
+          push_to(c, self.buffer)
+        end
+      elsif c == 'IF'
+        self.if_level += 1
+
+        if self.if_level == 1
+          # save conditional (true/false)
+          push_to(self.stack.pop, self.buffer)
+          push_to(c, self.buffer)
+          self.capture_if = true
+        end
       elsif c == 'ADD'
         op1 = self.stack.pop
         op2 = self.stack.pop
@@ -52,29 +82,13 @@ module Stacker
         op2 = self.stack.pop
 
         self.stack << (op2 == op1).to_s.to_sym
-      elsif c == 'THEN'
-        self.if_level -= 1
-
-        self.stack << c and return unless self.if_level == 0
-
-        # process if statement
-        stmnt = self.stack.slice!(self.stack.index('IF')..-1)
-
-        condition = execute(self.stack.pop).pop
-
-        if condition.match(/true/)
-          conditional_cmd = parse_if(stmnt)
-        else
-          conditional_cmd = parse_else(stmnt)
-        end
-
-        conditional_cmd.each { |cmd| execute(cmd) }
       elsif c == 'TIMES'
+        debugger
         # save num times to execute
         push_to(self.stack.pop, self.buffer)
-        self.in_times = true
+        self.capture_times = true
       elsif c == '/TIMES'
-        self.in_times = false
+        self.capture_times = false
 
         repeat = self.buffer.shift
         self.buffer = self.stack + self.buffer * repeat
@@ -96,8 +110,6 @@ module Stacker
         c = c[1..-1].to_sym
       elsif c.match(/\d/)
         c = c.to_i 
-      elsif c == 'IF'
-        self.if_level += 1
       end
 
       target << c
@@ -131,7 +143,7 @@ module Stacker
         if_count -= 1 if c == 'ELSE'
 
         if c == 'ELSE' && if_count == 0
-          else_cmd = cmd.slice(result.count+1..-1)
+          else_cmd = cmd.slice(result.count+1..cmd.rindex('THEN')-1)
           return else_cmd.map{ |a| a.class == Symbol ? ":#{a.to_s}" : a.to_s }
         end
 
