@@ -23,23 +23,25 @@ module SixDegrees
 
     c.each do |k, v|
       levels = bfs(c, k)
+      debugger if k == 'leta'
       
       (0..levels.values.max).each do |i|
         names = []
         levels.select{|k, v| v == i}.each { |n| names << n.first }
-        result +=  names.join(', ') + "\n"
+        result += "#{names.sort.join(', ')}\n"
       end
-      result += "\n"
-    end
-
-    # save to file
-    if params.has_key?(:filename)
-      File.open("dan_#{params[:filename]}",'w') do |file|
-        file.write result
-      end
+      result = "#{result}\n"
     end
 
     result.chomp!
+
+    #if filename
+      #File.open("rose_#{filename}", 'w') do |outfile|
+        #outfile.write result
+      #end
+    #end
+
+    result
   end
 
   def connect(text)
@@ -48,7 +50,6 @@ module SixDegrees
     text.each_line do |line|
       author = line[0..line.index(': ')-1]
       mentioned = line.scan(/@(\w+)/)
-      next if mentioned.empty?
       # append only uniques
       connections[author] = connections[author] ? connections[author] | mentioned.flatten : mentioned.flatten
     end
@@ -64,8 +65,6 @@ module SixDegrees
       v.delete_if { |i| connections[i].nil? || !connections[i].include?(k) }
     end
 
-    # remove users with no connections
-    connections.reject!{ |k,v| v.empty? }
     connections
   end
 

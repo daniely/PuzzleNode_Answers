@@ -35,7 +35,7 @@ duncan
 bob, emily
 alberta, christie
 EOS
-      SixDegrees.levels(:filename => 'sample_input.txt').should == result
+      SixDegrees.levels(:filename => 'complex_input.txt').should == result
     end
 
     it 'works with text' do
@@ -139,13 +139,13 @@ EOS
       SixDegrees.connect(text).should == result
     end
 
-    it 'ignore tweets with no mentioned users' do
+    it 'include active users - even tweets with no mentioned users' do
       text =<<EOS
 alberta: @christie @bob what up
 bob: hello
 christie: @alberta hi
 EOS
-      result = {"alberta"=>["bob", "christie"], "christie"=>["alberta"] }
+      result = {"alberta"=>["bob", "christie"], 'bob' => [], "christie"=>["alberta"] }
       SixDegrees.connect(text).should == result
     end
   end
@@ -168,12 +168,13 @@ EOS
       SixDegrees.remove_noise(input).should == result
     end
 
-    it 'only direct connections remain' do
+    it 'empty connections are ok (include all active users)' do
       input  = { 'alberta'  => ['christie'], 
                  'bob'      => ['alberta', 'christie'],
                  'christie' => ['alberta'] }
 
       result = { 'alberta'  => ['christie'], 
+                 'bob'      => [],
                  'christie' => ['alberta'] }
       SixDegrees.remove_noise(input).should == result
     end
@@ -187,13 +188,14 @@ EOS
         SixDegrees.remove_noise(input).should == result
     end
 
-    it 'remove author if never mentioned' do
+    it 'unmentioned authors are ok (as long as they are active)' do
         input  = { 'alberta'  => ['bob'], 
                    'bob'      => ['alberta'],
                    'duncan'   => ['farid'] }
 
         result = { 'alberta'  => ['bob'], 
-                   'bob' => ['alberta'] }
+                   'bob' => ['alberta'],
+                   'duncan'   => [] }
         SixDegrees.remove_noise(input).should == result
     end
   end
