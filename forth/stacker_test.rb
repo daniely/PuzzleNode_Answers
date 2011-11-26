@@ -15,42 +15,40 @@ describe "Stacker::Interpreter" do
   
   let(:interpreter) { Stacker::Interpreter.new }
 
-  it "do simple case" do
-    file = File.read('sample.stack')
-    file = file.split("\n")
+  def execute_file(filename)
+    file = File.read(filename).split("\n")
     file.map{ |a| a.strip! }
     file.reject!{ |a| a.empty? }
 
     execute(file)
-
-    output = File.read('sample_output.txt')
-    output = output.split("\n")
-
-    result = interpreter.stack.reverse
-    File.open('daniel_simple_out.txt', 'w') do |f|
-      result.each do |s|
-        f.write "#{s}\n"
-      end
-    end
-
   end
 
-  #it 'do challenge case' do
-    #file = File.read('challenge.stack')
-    #file = file.split("\n")
-    #file.map{ |a| a.strip! }
-    #file.reject!{ |a| a.empty? }
+  def write_to_file(outfile)
+    result = []
 
-    #execute(file)
+    interpreter.stack.reverse.map { |s| result << s }
+    result.map! { |r| r.class == Fixnum ? r : ":#{r}"  }
 
-    #result = interpreter.stack.reverse
+    File.open(outfile, 'w') do |f|
+      f.write result.join("\n") + "\n"
+    end
+  end
 
-    #File.open('daniel_challenge_out.txt', 'w') do |f|
-      #result.each do |s|
-        #f.write "#{s}\n"
-      #end
-    #end
-  #end
+  it "simple case" do
+    execute_file('sample.stack')
+    outfile_name = "daniel_simple_out.txt"
+    write_to_file(outfile_name)
+
+    check_file = File.read('sample_output.txt')
+    outfile = File.read(outfile_name)
+
+    outfile.must_equal(check_file)
+  end
+
+  it 'create challenge output' do
+    execute_file('challenge.stack')
+    write_to_file("daniel_challenge_out.txt")
+  end
 
   it "implements ADD" do
     execute %w[
