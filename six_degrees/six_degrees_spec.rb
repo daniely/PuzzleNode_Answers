@@ -35,7 +35,7 @@ duncan
 bob, emily
 alberta, christie
 EOS
-      SixDegrees.levels(:filename => 'complex_input.txt').should == result
+      SixDegrees.levels(:filename => 'sample_input.txt').should == result
     end
 
     it 'works with text' do

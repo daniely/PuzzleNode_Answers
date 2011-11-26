@@ -23,11 +23,11 @@ module SixDegrees
 
     c.each do |k, v|
       levels = bfs(c, k)
-      debugger if k == 'leta'
       
       (0..levels.values.max).each do |i|
         names = []
         levels.select{|k, v| v == i}.each { |n| names << n.first }
+        # sort names within subgroups
         result += "#{names.sort.join(', ')}\n"
       end
       result = "#{result}\n"
