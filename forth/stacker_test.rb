@@ -25,6 +25,14 @@ describe "Stacker::Interpreter" do
 
     output = File.read('sample_output.txt')
     output = output.split("\n")
+
+    result = interpreter.stack.reverse
+    File.open('daniel_simple_out.txt', 'w') do |f|
+      result.each do |s|
+        f.write "#{s}\n"
+      end
+    end
+
   end
 
   #it 'do challenge case' do
@@ -34,9 +42,16 @@ describe "Stacker::Interpreter" do
     #file.reject!{ |a| a.empty? }
 
     #execute(file)
+
+    #result = interpreter.stack.reverse
+
+    #File.open('daniel_challenge_out.txt', 'w') do |f|
+      #result.each do |s|
+        #f.write "#{s}\n"
+      #end
+    #end
   #end
 
-=begin
   it "implements ADD" do
     execute %w[
       2
@@ -312,28 +327,26 @@ describe "Stacker::Interpreter" do
     #interpreter.stack.must_equal([24])
   #end
   
-  #it "implements IF inside of TIMES command" do
-    #execute %w[
-      #5
-      #3
-      #TIMES
-      #:true
-      #IF
-      #1
-      #ADD
-      #ELSE
-      #2
-      #ADD
-      #THEN
-      #3
-      #ADD
-      #/TIMES
-    #]
+  it "implements IF inside of TIMES command" do
+    execute %w[
+      5
+      3
+      TIMES
+      :true
+      IF
+      1
+      ADD
+      ELSE
+      2
+      ADD
+      THEN
+      3
+      ADD
+      /TIMES
+    ]
 
-
-    #interpreter.stack.must_equal([17])
-  #end
-#=end
+    interpreter.stack.must_equal([17])
+  end
 
   it "implements PROCEDURE command" do
     execute %w[
@@ -403,5 +416,4 @@ describe "Stacker::Interpreter" do
 
     interpreter.stack.must_equal([:foo,:bar,:baz])
   end
-=end
 end

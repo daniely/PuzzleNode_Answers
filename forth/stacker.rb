@@ -1,12 +1,13 @@
 module Stacker
   class Interpreter
-    attr_accessor :stack, :if_level, :capture_times, :buffer, :capture_if, :capture_procedure, :procedures, :procedure_name
+    attr_accessor :stack, :if_level, :capture_times, :times_buffer, :capture_if, :capture_procedure, :procedures, :procedure_name, :if_buffer
 
     def initialize
       self.stack = [] 
       self.if_level = 0
       self.capture_times = false
-      self.buffer = []
+      self.times_buffer = []
+      self.if_buffer = []
       self.capture_if = false
       self.capture_procedure = false
       self.procedures = {}
@@ -24,23 +25,23 @@ module Stacker
         if c == 'THEN'
           self.if_level -= 1
 
-          self.buffer << c 
+          self.if_buffer << c 
           return unless self.if_level == 0
 
-          condition = self.buffer.shift
+          condition = self.if_buffer.shift
 
           if condition.match(/true/)
-            conditional_cmd = parse_if(self.buffer)
+            conditional_cmd = parse_if(self.if_buffer)
           else
-            conditional_cmd = parse_else(self.buffer)
+            conditional_cmd = parse_else(self.if_buffer)
           end
 
           self.capture_if = false
-          self.buffer = []
+          self.if_buffer = []
           conditional_cmd.each { |cmd| execute(cmd) }
         else
           self.if_level += 1 if c == 'IF'
-          push_to(c, self.buffer)
+          push_to(c, self.if_buffer)
         end
       elsif self.procedures.has_key?(c)
         self.procedures[c].each { |cmd| execute(cmd) }
@@ -48,16 +49,16 @@ module Stacker
         if c == '/TIMES'
           self.capture_times = false
 
-          repeat = self.buffer.shift
-          self.buffer = self.stack + self.buffer * repeat
+          repeat = self.times_buffer.shift
+          self.times_buffer = self.stack + self.times_buffer * repeat
           self.stack.clear
 
-          self.buffer.each do |cmd| 
+          self.times_buffer.each do |cmd| 
             execute(cmd)
           end
-          self.buffer.clear
+          self.times_buffer.clear
         else
-          push_to(c, self.buffer)
+          push_to(c, self.times_buffer)
         end
       elsif c =~ /PROCEDURE/
         self.capture_procedure = true
@@ -68,8 +69,8 @@ module Stacker
 
         if self.if_level == 1
           # save conditional (true/false)
-          push_to(self.stack.pop, self.buffer)
-          push_to(c, self.buffer)
+          push_to(self.stack.pop, self.if_buffer)
+          push_to(c, self.if_buffer)
           self.capture_if = true
         end
       elsif c == 'ADD'
@@ -114,7 +115,7 @@ module Stacker
         self.stack << (op2 == op1).to_s.to_sym
       elsif c == 'TIMES'
         # save num times to execute
-        push_to(self.stack.pop, self.buffer)
+        push_to(self.stack.pop, self.times_buffer)
         self.capture_times = true
       elsif c == 'DUP'
         push_to(self.stack.last, self.stack)
