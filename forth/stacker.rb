@@ -41,7 +41,7 @@ module Stacker
           conditional_cmd.each { |cmd| execute(cmd) }
         else
           self.if_level += 1 if c == 'IF'
-          push_to(c, self.if_buffer)
+          push(c, self.if_buffer)
         end
       elsif self.procedures.has_key?(c)
         self.procedures[c].each { |cmd| execute(cmd) }
@@ -58,7 +58,7 @@ module Stacker
           end
           self.times_buffer.clear
         else
-          push_to(c, self.times_buffer)
+          push(c, self.times_buffer)
         end
       elsif c =~ /PROCEDURE/
         self.capture_procedure = true
@@ -69,8 +69,8 @@ module Stacker
 
         if self.if_level == 1
           # save conditional (true/false)
-          push_to(self.stack.pop, self.if_buffer)
-          push_to(c, self.if_buffer)
+          push(self.stack.pop, self.if_buffer)
+          push(c, self.if_buffer)
           self.capture_if = true
         end
       elsif c == 'ADD'
@@ -115,10 +115,10 @@ module Stacker
         self.stack << (op2 == op1).to_s.to_sym
       elsif c == 'TIMES'
         # save num times to execute
-        push_to(self.stack.pop, self.times_buffer)
+        push(self.stack.pop, self.times_buffer)
         self.capture_times = true
       elsif c == 'DUP'
-        push_to(self.stack.last, self.stack)
+        push(self.stack.last)
       elsif c == 'SWAP'
         self.stack[-1], self.stack[-2] = self.stack[-2], self.stack[-1]
       elsif c == 'DROP'
@@ -128,11 +128,11 @@ module Stacker
         # ok to directly add to stack since item was just on the stack moments ago
         self.stack.push(move_item)
       else
-        push_to(c, self.stack)
+        push(c)
       end
     end
 
-    def push_to(c, target)
+    def push(c, target=self.stack)
       c = c.to_s
 
       if c[0] == ':'
