@@ -5,11 +5,38 @@ gem "minitest"
 
 require "minitest/autorun"
 require './stacker'
+require 'ruby-debug'
 
 describe "Stacker::Interpreter" do
 
+  def execute(commands)
+    commands.each { |c| interpreter.execute(c) }
+  end
+  
   let(:interpreter) { Stacker::Interpreter.new }
 
+  it "do simple case" do
+    file = File.read('sample.stack')
+    file = file.split("\n")
+    file.map{ |a| a.strip! }
+    file.reject!{ |a| a.empty? }
+
+    execute(file)
+
+    output = File.read('sample_output.txt')
+    output = output.split("\n")
+  end
+
+  #it 'do challenge case' do
+    #file = File.read('challenge.stack')
+    #file = file.split("\n")
+    #file.map{ |a| a.strip! }
+    #file.reject!{ |a| a.empty? }
+
+    #execute(file)
+  #end
+
+=begin
   it "implements ADD" do
     execute %w[
       2
@@ -20,7 +47,6 @@ describe "Stacker::Interpreter" do
     interpreter.stack.must_equal([5])
   end
 
-=begin
   it "implements SUBTRACT command" do
     execute %w[
       1
@@ -125,23 +151,23 @@ describe "Stacker::Interpreter" do
     execute %w[ 
        :true
        IF
-       :false
-       IF
-       1
+         :false
+         IF
+           1
+         ELSE
+           2
+         THEN
+           3
        ELSE
-       2
+         :true
+         IF
+           4
+         ELSE
+           5
+         THEN
+           6
        THEN
-       3
-       ELSE
-       :true
-       IF
-       4
-       ELSE
-       5
-       THEN
-       6
-       THEN
-       7
+         7
      ]
 
     interpreter.stack.must_equal([2,3,7])
@@ -151,44 +177,44 @@ describe "Stacker::Interpreter" do
     execute %w[
       :false
       IF
-      0
-      :false
-      IF
-      1
-      2
+        0
+        :false
+        IF
+          1
+          2
+        ELSE
+          3
+          2
+          2
+          ADD
+        THEN
+          5
+          2
+          3
+          MULTIPLY
       ELSE
-      3
-      2
-      2
-      ADD
+        3
+        4
+        ADD
+        7
+        8
+        <
+        IF
+          2
+          4
+          MULTIPLY
+          3
+          3
+          MULTIPLY
+        ELSE
+          10
+          11
+        THEN
+          12
+          13
       THEN
-      5
-      2
-      3
-      MULTIPLY
-      ELSE
-      3
-      4
-      ADD
-      7
-      8
-      <
-      IF
-      2
-      4
-      MULTIPLY
-      3
-      3
-      MULTIPLY
-      ELSE
-      10
-      11
-      THEN
-      12
-      13
-      THEN
-      14
-      15
+        14
+        15
     ]
     
     interpreter.stack.must_equal([7,8,9,12,13,14,15])
@@ -256,57 +282,58 @@ describe "Stacker::Interpreter" do
     interpreter.stack.must_equal([8])
   end
 
-  it "implements TIMES inside of IF command" do
-    execute %w[
-      :true
-      IF
-      5
-      3
-      TIMES
-      2
-      ADD
-      /TIMES
-      ELSE
-      2
-      4
-      TIMES
-      2
-      MULTIPLY
-      /TIMES
-      THEN
-      3
-      5
-      TIMES
-      2
-      ADD
-      /TIMES
-      ADD
-    ]
+  #it "implements TIMES inside of IF command" do
+    #execute %w[
+      #:true
+      #IF
+      #5
+      #3
+      #TIMES
+      #2
+      #ADD
+      #/TIMES
+      #ELSE
+      #2
+      #4
+      #TIMES
+      #2
+      #MULTIPLY
+      #/TIMES
+      #THEN
+      #3
+      #5
+      #TIMES
+      #2
+      #ADD
+      #/TIMES
+      #ADD
+    #]
 
-    interpreter.stack.must_equal([24])
-  end
+    #interpreter.stack.must_equal([24])
+  #end
   
-  it "implements IF inside of TIMES command" do
-    execute %w[
-      5
-      3
-      TIMES
-      :true
-      IF
-      1
-      ADD
-      ELSE
-      2
-      ADD
-      THEN
-      3
-      ADD
-      /TIMES
-    ]
+  #it "implements IF inside of TIMES command" do
+    #execute %w[
+      #5
+      #3
+      #TIMES
+      #:true
+      #IF
+      #1
+      #ADD
+      #ELSE
+      #2
+      #ADD
+      #THEN
+      #3
+      #ADD
+      #/TIMES
+    #]
 
 
-    interpreter.stack.must_equal([17])
-  end
+    #interpreter.stack.must_equal([17])
+  #end
+#=end
 
   it "implements PROCEDURE command" do
     execute %w[
@@ -377,9 +404,4 @@ describe "Stacker::Interpreter" do
     interpreter.stack.must_equal([:foo,:bar,:baz])
   end
 =end
-
-  def execute(commands)
-    commands.each { |c| interpreter.execute(c) }
-  end
-  
 end

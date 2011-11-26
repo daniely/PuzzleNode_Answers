@@ -1,6 +1,6 @@
 module Stacker
   class Interpreter
-    attr_accessor :stack, :if_level, :capture_times, :buffer, :capture_if
+    attr_accessor :stack, :if_level, :capture_times, :buffer, :capture_if, :capture_procedure, :procedures, :procedure_name
 
     def initialize
       self.stack = [] 
@@ -8,10 +8,19 @@ module Stacker
       self.capture_times = false
       self.buffer = []
       self.capture_if = false
+      self.capture_procedure = false
+      self.procedures = {}
+      self.procedure_name = ''
     end
 
     def execute(c)
-      if self.capture_if
+      if self.capture_procedure
+        unless c == '/PROCEDURE'
+          self.procedures[self.procedure_name] << c
+        else
+          self.capture_procedure = false
+        end
+      elsif self.capture_if
         if c == 'THEN'
           self.if_level -= 1
 
@@ -33,6 +42,27 @@ module Stacker
           self.if_level += 1 if c == 'IF'
           push_to(c, self.buffer)
         end
+      elsif self.procedures.has_key?(c)
+        self.procedures[c].each { |cmd| execute(cmd) }
+      elsif self.capture_times
+        if c == '/TIMES'
+          self.capture_times = false
+
+          repeat = self.buffer.shift
+          self.buffer = self.stack + self.buffer * repeat
+          self.stack.clear
+
+          self.buffer.each do |cmd| 
+            execute(cmd)
+          end
+          self.buffer.clear
+        else
+          push_to(c, self.buffer)
+        end
+      elsif c =~ /PROCEDURE/
+        self.capture_procedure = true
+        self.procedure_name = c[/PROCEDURE (.+)/, 1]
+        self.procedures[self.procedure_name] = []
       elsif c == 'IF'
         self.if_level += 1
 
@@ -83,21 +113,19 @@ module Stacker
 
         self.stack << (op2 == op1).to_s.to_sym
       elsif c == 'TIMES'
-        debugger
         # save num times to execute
         push_to(self.stack.pop, self.buffer)
         self.capture_times = true
-      elsif c == '/TIMES'
-        self.capture_times = false
-
-        repeat = self.buffer.shift
-        self.buffer = self.stack + self.buffer * repeat
-        self.stack.clear
-
-        self.buffer.each do |cmd| 
-          execute(cmd)
-        end
-        self.buffer.clear
+      elsif c == 'DUP'
+        push_to(self.stack.last, self.stack)
+      elsif c == 'SWAP'
+        self.stack[-1], self.stack[-2] = self.stack[-2], self.stack[-1]
+      elsif c == 'DROP'
+        self.stack.pop
+      elsif c == 'ROT'
+        move_item = self.stack.delete_at(-3)
+        # ok to directly add to stack since item was just on the stack moments ago
+        self.stack.push(move_item)
       else
         push_to(c, self.stack)
       end
