@@ -4,19 +4,16 @@ module SixDegrees
   extend self
 
   def levels(params)
-    if params.has_key?(:text) == false && params.has_key?(:filename) == false
-      raise "specify a filename or some text"
-    end
-
     filename = params[:filename]
     text = params[:text]
 
-    if filename
-      text = File.read(filename)
-    end
+    raise "specify a filename or some text" if filename.nil? && text.nil?
+
+    text = File.read(filename) if filename
 
     c = connect(text)
     c = remove_noise(c)
+    # sort first level names
     c = Hash[c.sort]
 
     result = ''
@@ -33,15 +30,7 @@ module SixDegrees
       result = "#{result}\n"
     end
 
-    result.chomp!
-
-    #if filename
-      #File.open("rose_#{filename}", 'w') do |outfile|
-        #outfile.write result
-      #end
-    #end
-
-    result
+    result.chomp
   end
 
   def connect(text)
