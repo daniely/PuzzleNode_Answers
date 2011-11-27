@@ -37,7 +37,7 @@ describe "Stacker::Interpreter" do
   it "simple case" do
     execute_file('sample.stack')
     outfile_name = "daniel_simple_out.txt"
-    write_to_file(outfile_name)
+    #write_to_file(outfile_name)
 
     check_file = File.read('sample_output.txt')
     outfile = File.read(outfile_name)
@@ -47,7 +47,7 @@ describe "Stacker::Interpreter" do
 
   it 'create challenge output' do
     execute_file('challenge.stack')
-    write_to_file("daniel_challenge_out.txt")
+    #write_to_file("daniel_challenge_out.txt")
   end
 
   it "implements ADD" do
