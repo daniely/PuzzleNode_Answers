@@ -7,7 +7,7 @@ describe SixDegrees do
       pending "comment out 'pending' to write sample output file"
 
       result = SixDegrees.levels(:filename => 'sample_input.txt')
-      File.open("222dan_sample_output.txt", 'w') do |outfile|
+      File.open("dan_sample_output.txt", 'w') do |outfile|
         outfile.write result
       end
     end
@@ -16,7 +16,7 @@ describe SixDegrees do
       pending "comment out 'pending' to write complex output file"
 
       result = SixDegrees.levels(:filename => 'complex_input.txt')
-      File.open("222dan_complex_output.txt", 'w') do |outfile|
+      File.open("dan_complex_output.txt", 'w') do |outfile|
         outfile.write result
       end
     end

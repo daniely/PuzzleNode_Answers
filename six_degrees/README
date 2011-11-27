@@ -1,0 +1,35 @@
+Works with ruby 1.9 and rspec 2.6
+
+To generate the output files just uncomment 'pending' in the first two specs
+and then run the specs using 'rspec six_degrees_spec.rb'
+
+1) write sample output - the sample example
+2) write complex output - the complex example
+
+I ran into a few problems with this puzzle because I did not read the 
+instructions carefully enough. The two mistakes I made were removing unmentioned
+users and not ordering the names within their groupings. I removed unmentioned
+users on purpose by misunderstanding the directions. But the ordering of the
+names I didn't realize I was doing wrong because I made sure to order the
+first level names. It wasn't until later that I realized the names ALSO need
+to be ordered within their groups.
+
+I had to eventually ask puzzlenode to see what was wrong with my solution. 
+Someone there pointed out the instructions that I was misreading and I was able
+to get the right solution.
+
+I did not worry too much about error handling. Also, I'm aware that hashes
+between ruby 1.8 and 1.9 behave slightly differently (ordered in 1.9) but I did
+not get a chance to check if my code works in 1.8. I didn't want to mess with
+installing rspec on my ruby 1.8 version of rvm (installing gems from my 
+connection here in China can be pretty slow).
+
+I'm not sure how others will solve this puzzle but I was only able to figure
+out the connection levels because I vaguely remembered trees/graphs from my 
+college days as a comp sci major. Even with that knowledge it took me a few
+days to figure things out. At first I was going to use a shortest path
+algorithm to check the distance between all nodes. But later on I realized I 
+could just use breadth first search (BFS) to set the levels and go from there.
+
+My code is pretty basic. It finds the direct connections between users, removes
+the "noise", uses BFS to find the connection levels, then prints it out.
