@@ -16,12 +16,59 @@ module Stacker
 
     def execute(c)
       if self.capture_procedure
+        run_capture_procedure(c)
+      elsif self.capture_if
+        run_capture_if(c)
+      elsif self.procedures.has_key?(c)
+        self.procedures[c].each { |cmd| execute(cmd) }
+      elsif self.capture_times
+        run_capture_times(c)
+      elsif c =~ /PROCEDURE/
+        run_procedure(c)
+      elsif c == 'IF'
+        run_if(c)
+      elsif c == 'ADD'
+        run_add
+      elsif c == 'SUBTRACT'
+        run_subtract
+      elsif c == 'MULTIPLY'
+        run_multiply
+      elsif c == 'DIVIDE'
+        run_divide
+      elsif c == 'MOD'
+        run_mod
+      elsif c == '<'
+        run_greater_than
+      elsif c == '>'
+        run_less_than
+      elsif c == '='
+        run_equals
+      elsif c == 'TIMES'
+        run_times
+      elsif c == 'DUP'
+        run_dup
+      elsif c == 'SWAP'
+        run_swap
+      elsif c == 'DROP'
+        run_drop
+      elsif c == 'ROT'
+        run_rot
+      else
+        push(c)
+      end
+    end
+
+    private
+
+      def run_capture_procedure(c)
         unless c == '/PROCEDURE'
           self.procedures[self.procedure_name] << c
         else
           self.capture_procedure = false
         end
-      elsif self.capture_if
+      end
+
+      def run_capture_if(c)
         if c == 'THEN'
           self.if_level -= 1
 
@@ -43,9 +90,9 @@ module Stacker
           self.if_level += 1 if c == 'IF'
           push(c, self.if_buffer)
         end
-      elsif self.procedures.has_key?(c)
-        self.procedures[c].each { |cmd| execute(cmd) }
-      elsif self.capture_times
+      end
+
+      def run_capture_times(c)
         if c == '/TIMES'
           self.capture_times = false
 
@@ -60,11 +107,15 @@ module Stacker
         else
           push(c, self.times_buffer)
         end
-      elsif c =~ /PROCEDURE/
+      end
+
+      def run_procedure(c)
         self.capture_procedure = true
         self.procedure_name = c[/PROCEDURE (.+)/, 1]
         self.procedures[self.procedure_name] = []
-      elsif c == 'IF'
+      end
+
+      def run_if(c)
         self.if_level += 1
 
         if self.if_level == 1
@@ -73,113 +124,136 @@ module Stacker
           push(c, self.if_buffer)
           self.capture_if = true
         end
-      elsif c == 'ADD'
+      end
+
+      def run_add
         op1 = self.stack.pop
         op2 = self.stack.pop
 
         self.stack << op2 + op1
-      elsif c == 'SUBTRACT'
+      end
+
+      def run_subtract
         op1 = self.stack.pop
         op2 = self.stack.pop
 
         self.stack << op2 - op1
-      elsif c == 'MULTIPLY'
+      end
+
+      def run_multiply
         op1 = self.stack.pop
         op2 = self.stack.pop
 
         self.stack << op2 * op1
-      elsif c == 'DIVIDE'
+      end
+
+      def run_divide
         op1 = self.stack.pop
         op2 = self.stack.pop
 
         self.stack << op2 / op1
-      elsif c == 'MOD'
+      end
+
+      def run_mod
         op1 = self.stack.pop
         op2 = self.stack.pop
 
         self.stack << op2 % op1
-      elsif c == '<'
+      end
+
+      def run_greater_than
         op1 = self.stack.pop
         op2 = self.stack.pop
 
         self.stack << (op2 < op1).to_s.to_sym
-      elsif c == '>'
+      end
+
+      def run_less_than
         op1 = self.stack.pop
         op2 = self.stack.pop
 
         self.stack << (op2 > op1).to_s.to_sym
-      elsif c == '='
+      end
+
+      def run_equals
         op1 = self.stack.pop
         op2 = self.stack.pop
 
         self.stack << (op2 == op1).to_s.to_sym
-      elsif c == 'TIMES'
+      end
+
+      def run_times
         # save num times to execute
         push(self.stack.pop, self.times_buffer)
         self.capture_times = true
-      elsif c == 'DUP'
+      end
+
+      def run_dup
         push(self.stack.last)
-      elsif c == 'SWAP'
+      end
+
+      def run_swap
         self.stack[-1], self.stack[-2] = self.stack[-2], self.stack[-1]
-      elsif c == 'DROP'
+      end
+
+      def run_drop
         self.stack.pop
-      elsif c == 'ROT'
+      end
+
+      def run_rot
         move_item = self.stack.delete_at(-3)
         # ok to directly add to stack since item was just on the stack moments ago
         self.stack.push(move_item)
-      else
-        push(c)
-      end
-    end
-
-    def push(c, target=self.stack)
-      c = c.to_s
-
-      if c[0] == ':'
-        c = c[1..-1].to_sym
-      elsif c.match(/\d/)
-        c = c.to_i 
       end
 
-      target << c
-    end
+      def push(c, target=self.stack)
+        c = c.to_s
 
-    def parse_if(cmd)
-      result = []
-      if_count = 0
-
-      cmd.each do |c|
-        if_count += 1 if c == 'IF'
-        if_count -= 1 if c == 'ELSE'
-
-        if c == 'ELSE' && if_count == 0
-          result.shift
-          return result.map{ |a| a.class == Symbol ? ":#{a.to_s}" : a.to_s }
+        if c[0] == ':'
+          c = c[1..-1].to_sym
+        elsif c.match(/\d/)
+          c = c.to_i 
         end
 
-        result << c
+        target << c
       end
 
-      raise "missing ELSE in IF ELSE THEN"
-    end
+      def parse_if(cmd)
+        result = []
+        if_count = 0
 
-    def parse_else(cmd)
-      result = []
-      if_count = 0
+        cmd.each do |c|
+          if_count += 1 if c == 'IF'
+          if_count -= 1 if c == 'ELSE'
 
-      cmd.each do |c|
-        if_count += 1 if c == 'IF'
-        if_count -= 1 if c == 'ELSE'
+          if c == 'ELSE' && if_count == 0
+            result.shift
+            return result.map{ |a| a.class == Symbol ? ":#{a.to_s}" : a.to_s }
+          end
 
-        if c == 'ELSE' && if_count == 0
-          else_cmd = cmd.slice(result.count+1..cmd.rindex('THEN')-1)
-          return else_cmd.map{ |a| a.class == Symbol ? ":#{a.to_s}" : a.to_s }
+          result << c
         end
 
-        result << c
+        raise "missing ELSE in IF ELSE THEN"
       end
-      
-      raise "missing THEN in IF ELSE THEN"
+
+      def parse_else(cmd)
+        result = []
+        if_count = 0
+
+        cmd.each do |c|
+          if_count += 1 if c == 'IF'
+          if_count -= 1 if c == 'ELSE'
+
+          if c == 'ELSE' && if_count == 0
+            else_cmd = cmd.slice(result.count+1..cmd.rindex('THEN')-1)
+            return else_cmd.map{ |a| a.class == Symbol ? ":#{a.to_s}" : a.to_s }
+          end
+
+          result << c
+        end
+        
+        raise "missing THEN in IF ELSE THEN"
+      end
     end
-  end
 end
