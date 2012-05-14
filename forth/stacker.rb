@@ -15,13 +15,13 @@ module Stacker
     end
 
     def execute(c)
-      if self.capture_procedure
+      if capture_procedure
         run_capture_procedure(c)
-      elsif self.capture_if
+      elsif capture_if
         run_capture_if(c)
-      elsif self.procedures.has_key?(c)
-        self.procedures[c].each { |cmd| execute(cmd) }
-      elsif self.capture_times
+      elsif procedures.has_key?(c)
+        procedures[c].each { |cmd| execute(cmd) }
+      elsif capture_times
         run_capture_times(c)
       elsif c =~ /PROCEDURE/
         run_procedure(c)
@@ -62,7 +62,7 @@ module Stacker
 
       def run_capture_procedure(c)
         unless c == '/PROCEDURE'
-          self.procedures[self.procedure_name] << c
+          procedures[procedure_name] << c
         else
           self.capture_procedure = false
         end
@@ -72,15 +72,15 @@ module Stacker
         if c == 'THEN'
           self.if_level -= 1
 
-          self.if_buffer << c 
-          return unless self.if_level == 0
+          if_buffer << c 
+          return unless if_level == 0
 
-          condition = self.if_buffer.shift
+          condition = if_buffer.shift
 
           if condition.match(/true/)
-            conditional_cmd = parse_if(self.if_buffer)
+            conditional_cmd = parse_if(if_buffer)
           else
-            conditional_cmd = parse_else(self.if_buffer)
+            conditional_cmd = parse_else(if_buffer)
           end
 
           self.capture_if = false
@@ -88,7 +88,7 @@ module Stacker
           conditional_cmd.each { |cmd| execute(cmd) }
         else
           self.if_level += 1 if c == 'IF'
-          push(c, self.if_buffer)
+          push(c, if_buffer)
         end
       end
 
@@ -96,117 +96,117 @@ module Stacker
         if c == '/TIMES'
           self.capture_times = false
 
-          repeat = self.times_buffer.shift
-          self.times_buffer = self.stack + self.times_buffer * repeat
-          self.stack.clear
+          repeat = times_buffer.shift
+          self.times_buffer = stack + times_buffer * repeat
+          stack.clear
 
-          self.times_buffer.each do |cmd| 
+          times_buffer.each do |cmd| 
             execute(cmd)
           end
-          self.times_buffer.clear
+          times_buffer.clear
         else
-          push(c, self.times_buffer)
+          push(c, times_buffer)
         end
       end
 
       def run_procedure(c)
         self.capture_procedure = true
         self.procedure_name = c[/PROCEDURE (.+)/, 1]
-        self.procedures[self.procedure_name] = []
+        procedures[procedure_name] = []
       end
 
       def run_if(c)
         self.if_level += 1
 
-        if self.if_level == 1
+        if if_level == 1
           # save conditional (true/false)
-          push(self.stack.pop, self.if_buffer)
-          push(c, self.if_buffer)
+          push(stack.pop, if_buffer)
+          push(c, if_buffer)
           self.capture_if = true
         end
       end
 
       def run_add
-        op1 = self.stack.pop
-        op2 = self.stack.pop
+        op1 = stack.pop
+        op2 = stack.pop
 
-        self.stack << op2 + op1
+        stack << op2 + op1
       end
 
       def run_subtract
-        op1 = self.stack.pop
-        op2 = self.stack.pop
+        op1 = stack.pop
+        op2 = stack.pop
 
-        self.stack << op2 - op1
+        stack << op2 - op1
       end
 
       def run_multiply
-        op1 = self.stack.pop
-        op2 = self.stack.pop
+        op1 = stack.pop
+        op2 = stack.pop
 
-        self.stack << op2 * op1
+        stack << op2 * op1
       end
 
       def run_divide
-        op1 = self.stack.pop
-        op2 = self.stack.pop
+        op1 = stack.pop
+        op2 = stack.pop
 
-        self.stack << op2 / op1
+        stack << op2 / op1
       end
 
       def run_mod
-        op1 = self.stack.pop
-        op2 = self.stack.pop
+        op1 = stack.pop
+        op2 = stack.pop
 
-        self.stack << op2 % op1
+        stack << op2 % op1
       end
 
       def run_greater_than
-        op1 = self.stack.pop
-        op2 = self.stack.pop
+        op1 = stack.pop
+        op2 = stack.pop
 
-        self.stack << (op2 < op1).to_s.to_sym
+        stack << (op2 < op1).to_s.to_sym
       end
 
       def run_less_than
-        op1 = self.stack.pop
-        op2 = self.stack.pop
+        op1 = stack.pop
+        op2 = stack.pop
 
-        self.stack << (op2 > op1).to_s.to_sym
+        stack << (op2 > op1).to_s.to_sym
       end
 
       def run_equals
-        op1 = self.stack.pop
-        op2 = self.stack.pop
+        op1 = stack.pop
+        op2 = stack.pop
 
-        self.stack << (op2 == op1).to_s.to_sym
+        stack << (op2 == op1).to_s.to_sym
       end
 
       def run_times
         # save num times to execute
-        push(self.stack.pop, self.times_buffer)
+        push(stack.pop, times_buffer)
         self.capture_times = true
       end
 
       def run_dup
-        push(self.stack.last)
+        push(stack.last)
       end
 
       def run_swap
-        self.stack[-1], self.stack[-2] = self.stack[-2], self.stack[-1]
+        stack[-1], stack[-2] = stack[-2], stack[-1]
       end
 
       def run_drop
-        self.stack.pop
+        stack.pop
       end
 
       def run_rot
-        move_item = self.stack.delete_at(-3)
+        move_item = stack.delete_at(-3)
         # ok to directly add to stack since item was just on the stack moments ago
-        self.stack.push(move_item)
+        stack.push(move_item)
       end
 
-      def push(c, target=self.stack)
+      def push(c, target=stack)
         c = c.to_s
 
         if c[0] == ':'
