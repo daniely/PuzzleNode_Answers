@@ -75,19 +75,20 @@ module Stacker
           self.if_level -= 1
 
           if_buffer << c 
-          return unless if_level == 0
 
-          condition = if_buffer.shift
+          if if_level == 0
+            condition = if_buffer.shift
 
-          if condition.match(/true/)
-            conditional_cmd = parse_if(if_buffer)
-          else
-            conditional_cmd = parse_else(if_buffer)
+            if condition.match(/true/)
+              conditional_cmd = parse_if(if_buffer)
+            else
+              conditional_cmd = parse_else(if_buffer)
+            end
+
+            self.capture_if = false
+            self.if_buffer = []
+            conditional_cmd.each { |cmd| execute(cmd) }
           end
-
-          self.capture_if = false
-          self.if_buffer = []
-          conditional_cmd.each { |cmd| execute(cmd) }
         else
           self.if_level += 1 if c == 'IF'
           push(c, if_buffer)
