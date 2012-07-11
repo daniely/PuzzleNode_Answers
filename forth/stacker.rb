@@ -61,10 +61,10 @@ module Stacker
     private
 
       def run_capture_procedure(c)
-        unless c == '/PROCEDURE'
-          procedures[procedure_name] << c
-        else
+        if c == '/PROCEDURE'
           self.capture_procedure = false
+        else
+          procedures[procedure_name] << c
         end
       end
 
