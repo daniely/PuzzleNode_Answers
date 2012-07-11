@@ -1,7 +1,6 @@
 # note, if you are using Ruby 1.9.2 or earlier you may need to install 
 # the minitest gem and then uncomment the following line.
 #
-gem "minitest"
 
 require "minitest/autorun"
 require './stacker'
