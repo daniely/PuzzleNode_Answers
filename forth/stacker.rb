@@ -1,6 +1,8 @@
 module Stacker
   class Interpreter
-    attr_accessor :stack, :if_level, :capture_if, :if_buffer, :capture_times, :times_buffer, :capture_procedure, :procedures, :procedure_name
+    attr_accessor :stack,             :if_level,      :capture_if, 
+                  :if_buffer,         :capture_times, :times_buffer, 
+                  :capture_procedure, :procedures,    :procedure_name
 
     def initialize
       self.stack             = [] 
